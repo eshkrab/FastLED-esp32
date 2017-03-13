@@ -8,8 +8,8 @@ struct FASTLED_ESP_IO {
   volatile uint32_t _GPOC;
 };
 
-#define _GPB0 (*(FASTLED_ESP_IO*)(0x3FF4404))
-#define _GPB1 (*(FASTLED_ESP_IO*)(0x3FF44010))
+#define _GPB0 (*(FASTLED_ESP_IO*)(0x3ff44000))
+#define _GPB1 (*(FASTLED_ESP_IO*)(0x3ff44010))
 #define OUTPUT_PIN_LIMIT 34
 
 
@@ -22,9 +22,13 @@ public:
   inline static void setOutput() { pinMode(PIN, OUTPUT); }
   inline static void setInput() { pinMode(PIN, INPUT); }
 
-  inline static void hi() __attribute__ ((always_inline)) { if(PIN < 32) { _GPB0._GPOS = MASK; } else if (PIN < OUTPUT_PIN_LIMIT){ _GPB1._GPOS = MASK; } }
-  inline static void lo() __attribute__ ((always_inline)) { if(PIN < 32) { _GPB0._GPOC = MASK; } else if (PIN < OUTPUT_PIN_LIMIT){ _GPB1._GPOC = MASK; } }
-  inline static void set(register port_t val) __attribute__ ((always_inline)) { if(PIN < 32) { _GPB0._GPO = val; } else if (PIN < OUTPUT_PIN_LIMIT){ _GPB1._GPO = val; }}
+  // inline static void hi() __attribute__ ((always_inline)) { if(PIN < 32) { _GPB0._GPOS = MASK; } else if (PIN < OUTPUT_PIN_LIMIT){ _GPB1._GPOS = MASK; } }
+  inline static void hi() __attribute__ ((always_inline)) { gpio_set_level((gpio_num_t)PIN, HIGH); }
+
+  // inline static void lo() __attribute__ ((always_inline)) { if(PIN < 32) { _GPB0._GPOC = MASK; } else if (PIN < OUTPUT_PIN_LIMIT){ _GPB1._GPOC = MASK; } }
+  inline static void lo() __attribute__ ((always_inline)) { gpio_set_level((gpio_num_t)PIN, LOW); }
+  // inline static void set(register port_t val) __attribute__ ((always_inline)) { if(PIN < 32) { _GPB0._GPO = val; } else if (PIN < OUTPUT_PIN_LIMIT){ _GPB1._GPO = val; }}
+  inline static void set(register port_t val) __attribute__ ((always_inline)) { gpio_set_level((gpio_num_t)PIN, val); }
 
   inline static void strobe() __attribute__ ((always_inline)) { toggle(); toggle(); }
 

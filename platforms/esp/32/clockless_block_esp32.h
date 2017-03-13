@@ -32,12 +32,12 @@ public:
 		/*uint32_t clocks = */
 		int cnt=FASTLED_INTERRUPT_RETRY_COUNT;
 		while(!showRGBInternal(pixels) && cnt--) {
-      os_intr_unlock();
+      ets_intr_unlock();
 			#ifdef FASTLED_DEBUG_COUNT_FRAME_RETRIES
 			_retry_cnt++;
 			#endif
       delayMicroseconds(WAIT_TIME * 10);
-      os_intr_lock();
+      ets_intr_lock();
     }
 		// #if FASTLED_ALLOW_INTTERUPTS == 0
 		// Adjust the timer
@@ -115,7 +115,7 @@ public:
 
   // This method is made static to force making register Y available to use for data on AVR - if the method is non-static, then
 	// gcc will use register Y for the this pointer.
-		static uint32_t ICACHE_RAM_ATTR showRGBInternal(PixelController<RGB_ORDER, LANES, PORT_MASK> &allpixels) {
+		static uint32_t showRGBInternal(PixelController<RGB_ORDER, LANES, PORT_MASK> &allpixels) {
 
 		// Setup the pixel controller and load/scale the first byte
 		Lines b0;
@@ -125,7 +125,7 @@ public:
 		}
 		allpixels.preStepFirstByteDithering();
 
-		os_intr_lock();
+		ets_intr_lock();
 		uint32_t _start = __clock_cycles();
 		uint32_t last_mark = _start;
 
@@ -141,21 +141,21 @@ public:
 			writeBits<8+XTRA0,0>(last_mark, b0, allpixels);
 
       #if (FASTLED_ALLOW_INTERRUPTS == 1)
-			os_intr_unlock();
+			ets_intr_unlock();
 			#endif
 
 			allpixels.stepDithering();
 
 			#if (FASTLED_ALLOW_INTERRUPTS == 1)
-      os_intr_lock();
+      ets_intr_lock();
 			// if interrupts took longer than 45µs, punt on the current frame
 			if((int32_t)(__clock_cycles()-last_mark) > 0) {
-				if((int32_t)(__clock_cycles()-last_mark) > (T1+T2+T3+((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US))) { os_intr_unlock(); return 0; }
+				if((int32_t)(__clock_cycles()-last_mark) > (T1+T2+T3+((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US))) { ets_intr_unlock(); return 0; }
 			}
 			#endif
 		};
 
-    os_intr_unlock();
+    ets_intr_unlock();
 		#ifdef FASTLED_DEBUG_COUNT_FRAME_RETRIES
 		_frame_cnt++;
 		#endif
