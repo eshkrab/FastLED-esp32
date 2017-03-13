@@ -8,9 +8,11 @@ struct FASTLED_ESP_IO {
   volatile uint32_t _GPOC;
 };
 
-#define _GPB0 (*(FASTLED_ESP_IO*)(0x3ff44000))
-#define _GPB1 (*(FASTLED_ESP_IO*)(0x3ff44010))
-#define OUTPUT_PIN_LIMIT 34
+#define _GPB0 (*(FASTLED_ESP_IO*)(GPIO_OUT_REG))
+// #define _GPB0 (*(FASTLED_ESP_IO*)(DR_REG_GPIO_BASE))
+// #define _GPB1 (*(FASTLED_ESP_IO*)(0x3ff44010))
+//THERE'S a second register for pins 32-39 (33 for outputs) but let's get one working first
+#define OUTPUT_PIN_LIMIT 31
 
 
 template<uint8_t PIN, uint32_t MASK> class _ESPPIN {
@@ -22,27 +24,27 @@ public:
   inline static void setOutput() { pinMode(PIN, OUTPUT); }
   inline static void setInput() { pinMode(PIN, INPUT); }
 
-  // inline static void hi() __attribute__ ((always_inline)) { if(PIN < 32) { _GPB0._GPOS = MASK; } else if (PIN < OUTPUT_PIN_LIMIT){ _GPB1._GPOS = MASK; } }
-  inline static void hi() __attribute__ ((always_inline)) { gpio_set_level((gpio_num_t)PIN, HIGH); }
+  inline static void hi() __attribute__ ((always_inline)) { if(PIN < OUTPUT_PIN_LIMIT) { _GPB0._GPOS = MASK; } }
+  // inline static void hi() __attribute__ ((always_inline)) { gpio_set_level((gpio_num_t)PIN, HIGH); }
 
-  // inline static void lo() __attribute__ ((always_inline)) { if(PIN < 32) { _GPB0._GPOC = MASK; } else if (PIN < OUTPUT_PIN_LIMIT){ _GPB1._GPOC = MASK; } }
-  inline static void lo() __attribute__ ((always_inline)) { gpio_set_level((gpio_num_t)PIN, LOW); }
-  // inline static void set(register port_t val) __attribute__ ((always_inline)) { if(PIN < 32) { _GPB0._GPO = val; } else if (PIN < OUTPUT_PIN_LIMIT){ _GPB1._GPO = val; }}
-  inline static void set(register port_t val) __attribute__ ((always_inline)) { gpio_set_level((gpio_num_t)PIN, val); }
+  inline static void lo() __attribute__ ((always_inline)) { if (PIN < OUTPUT_PIN_LIMIT){ _GPB0._GPOC = MASK; } }
+  // inline static void lo() __attribute__ ((always_inline)) { gpio_set_level((gpio_num_t)PIN, LOW); }
+  inline static void set(register port_t val) __attribute__ ((always_inline)) { if (PIN < OUTPUT_PIN_LIMIT){ _GPB0._GPO = val; }}
+  // inline static void set(register port_t val) __attribute__ ((always_inline)) { gpio_set_level((gpio_num_t)PIN, val); }
 
   inline static void strobe() __attribute__ ((always_inline)) { toggle(); toggle(); }
 
-  inline static void toggle() __attribute__ ((always_inline)) { if(PIN < 32) { _GPB0._GPO ^= MASK; } else if (PIN < OUTPUT_PIN_LIMIT){ _GPB1._GPO = MASK; } }
+  inline static void toggle() __attribute__ ((always_inline)) { if (PIN < OUTPUT_PIN_LIMIT){ _GPB0._GPO = MASK; } }
 
   inline static void hi(register port_ptr_t port) __attribute__ ((always_inline)) { hi(); }
   inline static void lo(register port_ptr_t port) __attribute__ ((always_inline)) { lo(); }
   inline static void fastset(register port_ptr_t port, register port_t val) __attribute__ ((always_inline)) { *port = val; }
 
-  inline static port_t hival() __attribute__ ((always_inline)) { if (PIN<OUTPUT_PIN_LIMIT) { return 0x004 | MASK;  }  }
-  inline static port_t loval() __attribute__ ((always_inline)) { if (PIN<OUTPUT_PIN_LIMIT) { return 0x004 & ~MASK; } }
-  inline static port_ptr_t port() __attribute__ ((always_inline)) { if(PIN<32) { return &_GPB0._GPO; } else if(PIN < OUTPUT_PIN_LIMIT){ return &_GPB1._GPO; } }
-  inline static port_ptr_t sport() __attribute__ ((always_inline)) { if (PIN<32)return &_GPB0._GPOS; else if(PIN<OUTPUT_PIN_LIMIT) return &_GPB1._GPOS; }
-  inline static port_ptr_t cport() __attribute__ ((always_inline)) { if (PIN<32)return &_GPB0._GPOC; else if(PIN<OUTPUT_PIN_LIMIT) return &_GPB1._GPOC; }
+  inline static port_t hival() __attribute__ ((always_inline)) { if (PIN<OUTPUT_PIN_LIMIT) { return GPIO_OUT_REG | MASK;    }}
+  inline static port_t loval() __attribute__ ((always_inline)) { if (PIN<OUTPUT_PIN_LIMIT) { return GPIO_OUT_REG & ~MASK;   }}
+  inline static port_ptr_t port() __attribute__ ((always_inline)) { if(PIN<OUTPUT_PIN_LIMIT) { return &_GPB0._GPO;   }}
+  inline static port_ptr_t sport() __attribute__ ((always_inline)) { if (PIN<OUTPUT_PIN_LIMIT) {return &_GPB0._GPOS; }}
+  inline static port_ptr_t cport() __attribute__ ((always_inline)) { if (PIN<OUTPUT_PIN_LIMIT) {return &_GPB0._GPOC; }}
   inline static port_t mask() __attribute__ ((always_inline)) { return MASK; }
 
   inline static bool isset() __attribute__ ((always_inline)) { return (0x004 & MASK); }
