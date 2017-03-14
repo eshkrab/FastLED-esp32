@@ -43,8 +43,10 @@ protected:
       _retry_cnt++;
       #endif
       // ets_intr_unlock();
+      interrupts();
       delayMicroseconds(WAIT_TIME);
       // ets_intr_lock();
+      noInterrupts();
     }
     mWait.mark();
   }
@@ -76,6 +78,7 @@ protected:
 		register uint32_t b = pixels.loadAndScale0();
     pixels.preStepFirstByteDithering();
 		// ets_intr_lock();
+    noInterrupts();
     uint32_t start = __clock_cycles();
 		uint32_t last_mark = start;
 		while(pixels.has(1)) {
@@ -93,12 +96,14 @@ protected:
 
 			#if (FASTLED_ALLOW_INTERRUPTS == 1)
 			// ets_intr_unlock();
+      interrupts();
 			#endif
 
       pixels.stepDithering();
 
 			#if (FASTLED_ALLOW_INTERRUPTS == 1)
 			// ets_intr_lock();
+      noInterrupts();
 			// if interrupts took longer than 45µs, punt on the current frame
 			if((int32_t)(__clock_cycles()-last_mark) > 0) {
 				if((int32_t)(__clock_cycles()-last_mark) > (T1+T2+T3+((WAIT_TIME-INTERRUPT_THRESHOLD)*CLKS_PER_US))) { sei(); return 0; }
@@ -107,6 +112,7 @@ protected:
 		};
 
 		// ets_intr_unlock();
+    interrupts();
     #ifdef FASTLED_DEBUG_COUNT_FRAME_RETRIES
     _frame_cnt++;
     #endif
