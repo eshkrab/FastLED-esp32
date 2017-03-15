@@ -1,7 +1,7 @@
 [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/FastLED/public)
 
 -------------------------------------------------
-Attempt at porting this great LED library to ESP32. Currently DOES NOT WORK. Any help would be appreciated!
+Attempt at porting this great LED library to ESP32. Works best with a small number of leds and not a lot of wifi communication because I haven't done the interrupts management or the SPI mux'ing yet. Any help would be appreciated!
 -------------------------------------------------
 
 IMPORTANT NOTE: For AVR based systems, avr-gcc 4.8.x is supported and tested.  This means Arduino 1.6.5 and later.
