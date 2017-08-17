@@ -11,7 +11,7 @@ FASTLED_NAMESPACE_BEGIN
 ///@defgroup Bitswap Bit swapping/rotate
 ///Functions for doing a rotation of bits/bytes used by parallel output
 ///@{
-#if defined(FASTLED_ARM) || defined(FASTLED_ESP8266)
+#if defined(FASTLED_ARM) || defined(FASTLED_ESP8266) || defined(FASTLED_ESP32)
 /// structure representing 8 bits of access
 typedef union {
   uint8_t raw;

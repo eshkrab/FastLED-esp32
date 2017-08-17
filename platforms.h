@@ -23,10 +23,8 @@
 #include "platforms/arm/stm32/fastled_arm_stm32.h"
 #elif defined(__SAMD21G18A__) || defined(__SAMD21J18A__) || defined(__SAMD21E17A__) || defined(__SAMD21E18A__)
 #include "platforms/arm/d21/fastled_arm_d21.h"
-// Include ESP8266
 #elif defined(ESP8266)
 #include "platforms/esp/8266/fastled_esp8266.h"
-// Include ESP32
 #elif defined(ESP32)
 #include "platforms/esp/32/fastled_esp32.h"
 #else
