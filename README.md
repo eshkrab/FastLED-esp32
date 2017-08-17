@@ -1,7 +1,7 @@
 [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/FastLED/public)
 
 -------------------------------------------------
-Attempt at porting this great LED library to ESP32. Works best with a small number of leds and not a lot of wifi communication because I haven't done the interrupts management or the SPI mux'ing yet. Any help would be appreciated!
+08/16/2017 UPDATE: standard FastLED now includes esp32 support as of version 3.1.6! Get it at https://github.com/FastLED/FastLED, happy lighting!
 -------------------------------------------------
 
 IMPORTANT NOTE: For AVR based systems, avr-gcc 4.8.x is supported and tested.  This means Arduino 1.6.5 and later.
